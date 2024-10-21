@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { Button } from "../button"
 
 
@@ -7,7 +8,10 @@ function Hero() {
           <h1 className="font-bold text-[30px] text-center mt-16">
               <span className="text-red-500">Discover Your Next Adventure with AI:</span> Personalized Recommendations, Tailored Itineraries, and Unforgettable Experiences</h1>
           <p className="text-xl text-gray-500 text-center">Your Personal Trip Planner and Travel Companion: Powered by AI</p>
-          <Button>Get Started</Button>
+          <Link to={'/create-trip'}>
+              <Button>Get Started</Button>
+          </Link>
+          
 
     </div>
   )
