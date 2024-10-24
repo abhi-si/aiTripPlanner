@@ -22,6 +22,7 @@ import axios from "axios";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../service/firebaseConfig";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 
 function CreateTrip() {
   const [place, setPlace] = useState();
@@ -29,6 +30,8 @@ function CreateTrip() {
   const [errorMessage, setErrorMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  
 
   const handleInputChange = (name, value) => {
     setFormData({
@@ -66,13 +69,11 @@ function CreateTrip() {
     if (!user) {
       return;
     }
-    // Check if required fields are filled
+
     const { noOfDays, location, budget, traveler } = formData;
 
-    // Check the number of days and required fields
     if (noOfDays > 5) {
       setErrorMessage("Number of days should be less than or equal to 5.");
-
       return;
     }
 
@@ -81,10 +82,8 @@ function CreateTrip() {
       return;
     }
 
-    // Clear error message if validation passes
     setErrorMessage("");
-    // console.log(formData); // Proceed with generating the trip
-    setLoading(true);
+    setLoading(true); // Start loading
 
     const FINAL_PROMPT = AI_PROMPT.replace(
       "{location}",
@@ -92,14 +91,11 @@ function CreateTrip() {
     )
       .replace("{totalDays}", formData?.noOfDays)
       .replace("{traveler}", formData?.traveler)
-      .replace("{budget}", formData?.budget)
-      .replace("{totalDays}", formData?.noOfDays);
-
-    // console.log(FINAL_PROMPT);
+      .replace("{budget}", formData?.budget);
 
     const result = await chatSession.sendMessage(FINAL_PROMPT);
     console.log("--", result?.response?.text());
-    setLoading(false);
+    setLoading(false); // Stop loading
     SaveAiTrip(result?.response?.text());
   };
 
@@ -114,6 +110,7 @@ function CreateTrip() {
       id: docId,
     });
     setLoading(false);
+    navigate('/view-trip/'+docId)
   };
 
   const GetUserProfile = async (tokenInfo) => {
@@ -238,7 +235,7 @@ function CreateTrip() {
 
       <div className="my-10 flex justify-end">
         <Button
-          // disabled={loading}
+          disabled={loading} // Disable the button when loading
           onClick={() => {
             if (!localStorage.getItem("user")) {
               setOpenDialog(true);
@@ -247,12 +244,11 @@ function CreateTrip() {
             }
           }}
         >
-          {/* {loading ? (
+          {loading ? (
             <AiOutlineLoading3Quarters className="h-7 w-7 animate-spin" />
           ) : (
             "Generate Trip"
-          )} */}
-          Generate Trip
+          )}
         </Button>
       </div>
 
