@@ -18,13 +18,17 @@ import {
 } from "@/components/ui/dialog";
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from "@react-oauth/google";
-import axios from 'axios'; 
+import axios from "axios";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../service/firebaseConfig";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 function CreateTrip() {
   const [place, setPlace] = useState();
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (name, value) => {
     setFormData({
@@ -38,24 +42,24 @@ function CreateTrip() {
     // console.log(formData);
   }, [formData]);
 
-const login = useGoogleLogin({
-  onSuccess: async (codeResponse) => {
-    console.log("Login successful:", codeResponse);
-    
-    // Assuming codeResponse contains the access token
-    const { access_token } = codeResponse; // Extract the access token
+  const login = useGoogleLogin({
+    onSuccess: async (codeResponse) => {
+      console.log("Login successful:", codeResponse);
 
-    // Call GetUser Profile with the access token
-    if (access_token) {
-      await GetUserProfile({ access_token });
-    } else {
-      console.error("No access token received.");
-    }
-  },
-  onError: (error) => {
-    console.error("Login error:", error);
-  },
-});
+      // Assuming codeResponse contains the access token
+      const { access_token } = codeResponse; // Extract the access token
+
+      // Call GetUser Profile with the access token
+      if (access_token) {
+        await GetUserProfile({ access_token });
+      } else {
+        console.error("No access token received.");
+      }
+    },
+    onError: (error) => {
+      console.error("Login error:", error);
+    },
+  });
 
   const OnGenerateTrip = async () => {
     const user = localStorage.getItem("user");
@@ -79,7 +83,8 @@ const login = useGoogleLogin({
 
     // Clear error message if validation passes
     setErrorMessage("");
-    console.log(formData); // Proceed with generating the trip
+    // console.log(formData); // Proceed with generating the trip
+    setLoading(true);
 
     const FINAL_PROMPT = AI_PROMPT.replace(
       "{location}",
@@ -90,31 +95,52 @@ const login = useGoogleLogin({
       .replace("{budget}", formData?.budget)
       .replace("{totalDays}", formData?.noOfDays);
 
-    console.log(FINAL_PROMPT);
+    // console.log(FINAL_PROMPT);
 
     const result = await chatSession.sendMessage(FINAL_PROMPT);
-    console.log(result?.response?.text());
+    console.log("--", result?.response?.text());
+    setLoading(false);
+    SaveAiTrip(result?.response?.text());
   };
 
-const GetUserProfile = async (tokenInfo) => {
-  console.log("Fetching user profile with token:", tokenInfo?.access_token);
-  
-  try {
-    const resp = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo`, {
-      headers: {
-        Authorization: `Bearer ${tokenInfo?.access_token}`,
-        Accept: "application/json",
-      },
+  const SaveAiTrip = async (TripData) => {
+    setLoading(true);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const docId = Date.now().toString();
+    await setDoc(doc(db, "AITrips", docId), {
+      userSelection: formData,
+      tripData: TripData,
+      userEmail: user?.email,
+      id: docId,
     });
-    console.log("Response received:", resp); // Log the full response object
-    console.log("User  Profile Data:", resp.data); // Log the data part of the response
-    localStorage.setItem('user', JSON.stringify(resp.data))
-    setOpenDialog(false);
-    OnGenerateTrip();
-  } catch (error) {
-    console.error("Error fetching user profile:", error.response ? error.response.data : error.message);
-  }
-};
+    setLoading(false);
+  };
+
+  const GetUserProfile = async (tokenInfo) => {
+    console.log("Fetching user profile with token:", tokenInfo?.access_token);
+
+    try {
+      const resp = await axios.get(
+        `https://www.googleapis.com/oauth2/v1/userinfo`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenInfo?.access_token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+      console.log("Response received:", resp); // Log the full response object
+      console.log("User  Profile Data:", resp.data); // Log the data part of the response
+      localStorage.setItem("user", JSON.stringify(resp.data));
+      setOpenDialog(false);
+      OnGenerateTrip();
+    } catch (error) {
+      console.error(
+        "Error fetching user profile:",
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
 
   return (
     <div className="px-5 mt-10 sm:px-10 md:px-32 lg:px-56">
@@ -212,6 +238,7 @@ const GetUserProfile = async (tokenInfo) => {
 
       <div className="my-10 flex justify-end">
         <Button
+          // disabled={loading}
           onClick={() => {
             if (!localStorage.getItem("user")) {
               setOpenDialog(true);
@@ -220,6 +247,11 @@ const GetUserProfile = async (tokenInfo) => {
             }
           }}
         >
+          {/* {loading ? (
+            <AiOutlineLoading3Quarters className="h-7 w-7 animate-spin" />
+          ) : (
+            "Generate Trip"
+          )} */}
           Generate Trip
         </Button>
       </div>
