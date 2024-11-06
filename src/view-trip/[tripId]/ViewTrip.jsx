@@ -4,6 +4,8 @@ import { getDoc, doc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import InfoSection from "./InfoSection";
 import Hotels from "./Hotels";
+import DailyPlans from "./DailyPlans";
+import Footer from "./Footer";
 
 function ViewTrip() {
     const { tripId } = useParams();
@@ -38,7 +40,9 @@ function ViewTrip() {
             <InfoSection trip={trip} />
             <Hotels trip={trip} />
             {/* daily plans */}
+            <DailyPlans trip={trip} />
             {/* footer */}
+            <Footer trip={trip} />
         </div>
     );
 }
