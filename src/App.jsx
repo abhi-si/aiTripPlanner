@@ -1,6 +1,3 @@
-
-
-
 import Hero from './components/ui/custom/Hero'
 
 
@@ -8,15 +5,14 @@ function App() {
   
 
   return (
-    <>
+    <div className='bg-gray-200 h-screen'>
 
-      {/* <h1>hello</h1>
-      <Button>wow</Button> */}
+     
       <Hero/>
 
       
 
-    </>
+    </div>
   )
 }
 

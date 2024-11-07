@@ -132,4 +132,4 @@ function Header() {
 export default Header;
 
 
-//!since button is not inside routerprovider so we have to wrap ny trip button inside <a>tag
+//!since button is not inside routerprovider so we have to wrap ny trip button inside <a>
