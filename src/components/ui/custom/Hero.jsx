@@ -12,7 +12,7 @@ function Hero() {
               <Button>Get Started</Button>
           </Link>
           
-
+         {/* <img src="/landing.png" className="-mt-20"/> */}
     </div>
   )
 }

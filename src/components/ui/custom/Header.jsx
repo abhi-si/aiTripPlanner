@@ -16,8 +16,11 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Header() {
+
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -77,8 +80,9 @@ function Header() {
 
   return (
     <div className="p-3 shadow-md flex justify-between items-center px-5">
-      <img src="/logo.svg" alt="logo" />
-      <div className="font-bold text-red-600 text-4xl">AI Trip Planner</div>
+      <img src="/logo.svg" alt="logo" onClick={() => navigate('/')} // Navigate to the home route
+        className="cursor-pointer"/>
+      <div className="font-bold text-red-600 text-4xl cursor-pointer" onClick={()=>navigate('/')}>AI Trip Planner</div>
       <div>
         {user ? (
           <div className="flex items-center gap-3">
@@ -89,7 +93,7 @@ function Header() {
 
             <Popover>
               <PopoverTrigger>
-                <img src={user.picture} alt="User  Profile" className="w-[35px] h-[35px] rounded-full" />
+                <img src={user.picture?user.picture:'/download'} alt="User  Profile" className="w-[35px] h-[35px] rounded-full" />
               </PopoverTrigger>
               <PopoverContent>
                 <h2 className="cursor-pointer" onClick={() => {
