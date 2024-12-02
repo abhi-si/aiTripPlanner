@@ -49,11 +49,25 @@ const router = createBrowserRouter([
   },
 ]);
 
+// console.log("Google Client ID:", import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID);
+// createRoot(document.getElementById('root')).render(
+//   <StrictMode>
+//     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID}>
+//       <RouterProvider router={router} />
+//       <Toaster />
+//     </GoogleOAuthProvider>
+//   </StrictMode>
+// );
+const clientId = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID || 'your-fallback-client-id';
+
+console.log("Google Client ID:", clientId);
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={clientId}>
       <RouterProvider router={router} />
       <Toaster />
     </GoogleOAuthProvider>
   </StrictMode>
 );
+
